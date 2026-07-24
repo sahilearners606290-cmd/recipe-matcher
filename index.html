@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport"
+content="width=device-width,initial-scale=1">
+
+<meta name="theme-color"
+content="#22b455">
+
+<meta name="description"
+content="Recipe Matcher PWA">
+
+<title>Recipe Matcher</title>
+
+<link rel="manifest"
+href="manifest.json">
+
+<link rel="stylesheet"
+href="style.css">
+
+<link rel="preconnect"
+href="https://fonts.googleapis.com">
+
+<link rel="preconnect"
+href="https://fonts.gstatic.com"
+crossorigin>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+rel="stylesheet">
+
+</head>
+
+<body>
+
+<div id="homePage">
+
+<header>
+
+<div class="logo">
+
+<div class="icon">
+🍽️
+</div>
+
+<div>
+
+<h2 id="appTitle">
+Recipe Matcher
+</h2>
+
+<p id="appSub">
+Find Recipes Instantly
+</p>
+
+</div>
+
+</div>
+
+<div class="top">
+
+<button id="langBtn">
+हिन्दी
+</button>
+
+<button id="darkBtn">
+🌙
+</button>
+
+</div>
+
+</header>
+
+<main class="wrap">
+
+<div id="adBox">
+
+<h3>
+📢 Sponsored
+</h3>
+
+<p>
+Advertisement Space
+</p>
+
+</div>
+<section class="card">
+
+<div class="title">
+
+<h3 id="ingTitle">
+Select Ingredients
+</h3>
+
+<div class="count"
+id="count">
+0
+</div>
+
+</div>
+
+<input
+id="ingredientInput"
+type="text"
+placeholder="Rice, Onion, Tomato">
+
+<input
+id="qtyInput"
+type="number"
+placeholder="Quantity">
+
+<select id="unitSelect">
+
+<option value="">
+Select Unit
+</option>
+
+<option>
+Piece
+</option>
+
+<option>
+Kg
+</option>
+
+<option>
+Gram
+</option>
+
+<option>
+Liter
+</option>
+
+<option>
+ml
+</option>
+
+</select>
+
+<button
+class="btn"
+id="addBtn">
+
+➕ Add Ingredient
+
+</button>
+
+<button
+class="btn"
+id="findBtn">
+
+🔍 Find Matching Recipes
+
+</button>
+
+<div
+class="list"
+id="selectedList">
+
+</div>
+
+<div
+id="recipeResults">
+
+</div>
+
+</section>
+
+<section
+class="card">
+
+<h3 class="sectionTitle">
+
+🍚 Categories
+
+</h3>
+
+<div
+class="categories"
+id="categoryList">
+  <div class="cat active"
+data-cat="All">
+All
+</div>
+
+<div class="cat"
+data-cat="Rice">
+Rice
+</div>
+
+<div class="cat"
+data-cat="Vegetable">
+Vegetable
+</div>
+
+<div class="cat"
+data-cat="Paneer">
+Paneer
+</div>
+
+<div class="cat"
+data-cat="Dal">
+Dal
+</div>
+
+<div class="cat"
+data-cat="Breakfast">
+Breakfast
+</div>
+
+<div class="cat"
+data-cat="Egg">
+Egg
+</div>
+
+<div class="cat"
+data-cat="NonVeg">
+NonVeg
+</div>
+
+<div class="cat"
+data-cat="Healthy">
+Healthy
+</div>
+
+<div class="cat"
+data-cat="Drink">
+Drink
+</div>
+
+</div>
+
+</section>
+
+</main>
+
+</div>
+
+<div id="favPage"
+class="page"
+style="display:none;">
+
+<div class="wrap">
+
+<h2 class="pageTitle">
+
+❤️ Favorites
+
+</h2>
+
+<div id="favoriteRecipes">
+
+<p class="empty">
+
+No favorite recipes yet.
+
+</p>
+
+</div>
+
+</div>
+
+</div>
+<div id="dietPage"
+class="page"
+style="display:none;">
+
+<div class="wrap">
+
+<h2 class="pageTitle">
+
+👑 Premium Diet Plans
+
+</h2>
+
+<div id="dietPlans">
+
+</div>
+
+</div>
+
+</div>
+
+<div id="storePage"
+class="page"
+style="display:none;">
+
+<div class="wrap">
+
+<h2 class="pageTitle">
+
+🛒 Affiliate Store
+
+</h2>
+
+<div id="affiliateProducts">
+
+</div>
+
+</div>
+
+</div>
+
+<nav class="bottomNav">
+
+<button
+id="homeNav"
+class="navBtn active">
+
+🏠
+
+<span>
+Home
+</span>
+
+</button>
+
+<button
+id="favNav"
+class="navBtn">
+
+❤️
+
+<span>
+Favorites
+</span>
+
+</button>
+
+<button
+id="dietNav"
+class="navBtn">
+
+👑
+
+<span>
+Diets
+</span>
+
+</button>
+
+<button
+id="storeNav"
+class="navBtn">
+
+🛒
+
+<span>
+Store
+</span>
+
+</button>
+
+</nav>
+
+<script src="data.js"></script>
+
+<script src="app.js"></script>
+
+</body>
+
+</html>
