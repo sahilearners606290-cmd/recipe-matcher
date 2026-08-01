@@ -1,76 +1,127 @@
 export default async function handler(req, res) {
-  // Allow CORS
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  // CORS
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
-  if (req.method === 'OPTIONS') {
+  if (req.method === "OPTIONS") {
     return res.status(200).end();
   }
 
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
+  if (req.method !== "POST") {
+    return res.status(405).json({
+      error: "Method not allowed"
+    });
   }
 
   try {
-    const { ingredients, lang, language } = req.body;
     const apiKey = process.env.GEMINI_API_KEY;
 
     if (!apiKey) {
-      return res.status(500).json({ error: "API Key missing in Vercel settings" });
-    }
-
-    const selectedLang = lang || language || 'en';
-    const ingList = Array.isArray(ingredients) ? ingredients.join(', ') : ingredients;
-    const userLanguage = selectedLang === 'hi' ? 'Hindi' : 'English';
-
-    const promptText = `You are an expert chef. Create a simple step-by-step recipe using these ingredients: ${ingList}. Output Language: ${userLanguage}. Include Title, Ingredients, and Instructions.`;
-
-    // Updated Active Gemini API Endpoint URL
-    const googleUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
-
-    let response = await fetch(googleUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        contents: [{
-          parts: [{ text: promptText }]
-        }]
-      })
-    });
-
-    // Fallback URL agar 2.5 response me issue ho
-    if (!response.ok) {
-      const fallbackUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`;
-      response = await fetch(fallbackUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: promptText }] }]
-        })
+      return res.status(500).json({
+        error: "GEMINI_API_KEY is missing."
       });
     }
 
+    const { ingredients, lang, language } = req.body;
+
+    if (!ingredients || ingredients.length === 0) {
+      return res.status(400).json({
+        error: "Ingredients are required."
+      });
+    }
+
+    const selectedLanguage = lang || language || "en";
+
+    const ingredientList = Array.isArray(ingredients)
+      ? ingredients.join(", ")
+      : ingredients;
+
+    const prompt = `
+You are an expert chef.
+
+Create a delicious recipe using ONLY these ingredients:
+
+${ingredientList}
+
+Language:
+${selectedLanguage === "hi" ? "Hindi" : "English"}
+
+Return in this format:
+
+Recipe Name
+
+Ingredients
+
+Instructions
+
+Cooking Tips
+`;
+
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          contents: [
+            {
+              parts: [
+                {
+                  text: prompt
+                }
+              ]
+            }
+          ]
+        })
+      }
+    );
+
+    const rawText = await response.text();
+
+    console.log("Gemini Response:");
+    console.log(rawText);
+
     if (!response.ok) {
-  const errorData = await response.text();
-
-  console.error("Gemini API Error Response:", errorData);
-
-  return res.status(response.status).json({
-    error: errorData
-  });
+      return res.status(response.status).json({
+        error: rawText
+      });
     }
 
-    const data = await response.json();
+    let data;
 
-    if (data.candidates && data.candidates[0]?.content?.parts[0]?.text) {
-      return res.status(200).json({ recipe: data.candidates[0].content.parts[0].text });
-    } else {
-      return res.status(500).json({ error: "Failed to parse recipe from Gemini" });
+    try {
+      data = JSON.parse(rawText);
+    } catch {
+      return res.status(500).json({
+        error: "Invalid JSON received from Gemini."
+      });
     }
 
-  } catch (error) {
-    console.error("Backend Gateway Exception:", error);
-    return res.status(500).json({ error: error.message || "Internal server error" });
-  }
-}
+    const recipe =
+      data?.candidates?.[0]?.content?.parts?.[0]?.text;
+
+    if (!recipe) {
+      return res.status(500).json({
+        error: "Gemini returned an empty recipe.",
+        data
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      recipe
+    });
+
+  } catch (err) {
+    console.error("Backend Error:", err);
+
+    return res.status(500).json({
+      error: err.message || "Internal server error"
+    });
+      }
+     }
+  
+  
