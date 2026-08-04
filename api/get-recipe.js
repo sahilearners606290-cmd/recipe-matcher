@@ -19,65 +19,56 @@ export default async function handler(req, res) {
 
     if (!apiKey) {
       return res.status(500).json({
-        error: "GEMINI_API_KEY is missing."
+        error: "GEMINI_API_KEY not found."
       });
     }
 
-    const { ingredients, lang, language } = req.body;
+    const body = req.body || {};
 
-    if (!ingredients || ingredients.length === 0) {
-      return res.status(400).json({
-        error: "Ingredients are required."
-      });
-    }
+    const ingredients = Array.isArray(body.ingredients)
+      ? body.ingredients.join(", ")
+      : (body.ingredients || "");
 
-    const selectedLanguage = lang || language || "en";
+    const lang = body.lang || body.language || "en";
 
-    const ingredientList = Array.isArray(ingredients)
-      ? ingredients.join(", ")
-      : ingredients;
+    const outputLanguage =
+      lang === "hi" ? "Hindi" : "English";
 
     const prompt = `
 You are an expert chef.
 
-Create a delicious recipe using ONLY these ingredients:
+Create one recipe using only these ingredients:
+${ingredients}
 
-${ingredientList}
+Return the recipe in ${outputLanguage}.
 
-Language:
-${selectedLanguage === "hi" ? "Hindi" : "English"}
+Format:
 
-Return in this format:
-
-Recipe Name
-
-Ingredients
-
-Instructions
-
-Cooking Tips
+Title:
+Ingredients:
+Instructions:
 `;
 
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          contents: [
-            {
-              parts: [
-                {
-                  text: prompt
-                }
-              ]
-            }
-          ]
-        })
-      }
-    );
+    const url =
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        contents: [
+          {
+            parts: [
+              {
+                text: prompt
+              }
+            ]
+          }
+        ]
+      })
+    });
 
     const rawText = await response.text();
 
@@ -121,7 +112,7 @@ Cooking Tips
     return res.status(500).json({
       error: err.message || "Internal server error"
     });
-      }
-     }
+  }
+}
   
-  
+
