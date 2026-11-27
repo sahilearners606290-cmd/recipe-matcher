@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport"
+content="width=device-width,initial-scale=1">
+
+<meta name="theme-color"
+content="#22b455">
+
+<meta name="description"
+content="RISE — your food discovery, recipe, nutrition and lifestyle companion">
+
+<title>RISE — Food & Recipe Companion</title>
+
+<link rel="manifest"
+href="manifest.json">
+
+<link rel="stylesheet"
+href="style.css">
+
+<link rel="preconnect"
+href="https://fonts.googleapis.com">
+
+<link rel="preconnect"
+href="https://fonts.gstatic.com"
+crossorigin>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+rel="stylesheet">
+
+
+<style>
+.scanStatus{display:block;margin-top:10px;color:#287a45;font-size:13px;line-height:1.5}
+.scanReviewPanel{margin:14px 0 20px;padding:16px;background:#fff;border:1px solid #dce8df;border-radius:16px;color:#17251c;box-shadow:0 5px 18px rgba(20,70,35,.07)}
+.scanReviewPanel h3{margin:0 0 6px;font-size:17px;color:#173d27}
+.scanReviewPanel p{margin:0 0 10px;color:#5b6b60;font-size:13px}
+.scanReviewPanel textarea{width:100%;box-sizing:border-box;padding:12px;border:1px solid #cbd9ce;border-radius:10px;background:#fff;color:#17251c;font:inherit;resize:vertical}
+.scanReviewActions{display:flex;gap:9px;flex-wrap:wrap;margin-top:10px}
+.scanReviewActions button{border:0;border-radius:10px;padding:11px 14px;font:inherit;font-weight:600;cursor:pointer}
+#scanAddDetected{background:#238b4c;color:#fff}
+#scanCancelDetected{background:#edf2ee;color:#294333}
+body.dark .scanReviewPanel{background:#17211b;border-color:#35483b;color:#f0f5f1}
+body.dark .scanReviewPanel h3{color:#d8f3df}
+body.dark .scanReviewPanel p{color:#b5c5ba}
+body.dark .scanReviewPanel textarea{background:#101713;color:#f0f5f1;border-color:#506456}
+body.dark #scanCancelDetected{background:#2b3a30;color:#e5eee7}
+
+.recipeImageWrap{width:100%;margin:10px 0 14px;border-radius:14px;overflow:hidden;background:#eef7f0;aspect-ratio:16/9}
+.recipeImage{display:block;width:100%;height:100%;object-fit:cover}
+.recipeImagePlaceholder{display:flex;align-items:center;justify-content:center;width:100%;height:100%;min-height:120px;font-size:54px;background:linear-gradient(135deg,#e7f7ec,#f8fff9)}
+.recipeActions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.recipeActions button{border:0;border-radius:10px;padding:10px 13px;background:#eaf6ee;color:#205b36;font:inherit;font-weight:600;cursor:pointer}
+.nutritionGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:12px 0}
+.nutritionGrid span{display:block;padding:12px;border-radius:12px;background:#edf8f0;line-height:1.7}
+.nutritionPanel small{display:block;line-height:1.5;color:#647267}
+body.dark .recipeImagePlaceholder{background:linear-gradient(135deg,#203629,#17251d)}
+body.dark .recipeActions button,body.dark .nutritionGrid span{background:#263b2d;color:#e8f5eb}
+
+
+
+/* RISE accessible nutrition and voice controls */
+.nutritionShortcut,
+.recipeActions .nutritionBtn,
+#favoriteRecipes .nutritionBtn {
+  display:inline-flex !important; align-items:center !important; justify-content:center !important;
+  min-height:46px !important; padding:11px 16px !important;
+  border:1px solid #b9ddc6 !important; border-radius:12px !important;
+  background:#e7f7ec !important; color:#145c32 !important;
+  font-weight:700 !important; font-size:15px !important; opacity:1 !important; cursor:pointer !important;
+}
+body.dark .nutritionShortcut,
+body.dark .recipeActions .nutritionBtn,
+body.dark #favoriteRecipes .nutritionBtn {
+  background:#244b33 !important; border-color:#3f8057 !important; color:#f2fff5 !important;
+}
+.nutritionPanel, .nutritionInline {
+  margin:12px 0; padding:14px; border:1px solid #cce5d4;
+  border-radius:14px; background:#f2fbf4; color:#173d27;
+}
+.nutritionInline[hidden], .nutritionPanel[hidden], .voiceStatus[hidden] { display:none !important; }
+body.dark .nutritionPanel, body.dark .nutritionInline {
+  background:#172b20; border-color:#355b42; color:#effaf1;
+}
+.nutritionPanel p, .nutritionInline p, .nutritionPanel small, .nutritionInline small { color:inherit !important; }
+.voiceStatus { display:block; margin:8px 2px 12px; color:#176b3b; font-size:13px; line-height:1.5; }
+.voiceStatus.error { color:#b42318; }
+body.dark .voiceStatus { color:#9de0b2; }
+body.dark .voiceStatus.error { color:#ff9b9b; }
+
+</style>
+
+</head>
+
+<body>
+
+<div id="homePage">
+
+<header>
+
+<div class="logo">
+
+<div class="icon">
+🍽️
+</div>
+
+<div>
+
+<h2 id="appTitle">
+Recipe Matcher
+</h2>
+
+<p id="appSub">
+Find Recipes Instantly
+</p>
+
+</div>
+
+</div>
+
+<div class="top">
+
+<button id="langBtn">
+हिन्दी
+</button>
+
+<button id="darkBtn" aria-label="Toggle theme">☀️/🌙</button>
+<button id="riseLoginBtn" type="button">Login</button>
+
+</div>
+
+</header>
+
+<main class="wrap">
+<div class="riseHero">
+  <div class="heroBrand"><span class="riseMark">🌱</span><div><h1>RISE</h1><small>Your AI Cooking Assistant</small></div></div>
+  <h2>Find the Perfect<br>Recipe Instantly</h2>
+  <p>Scan · Search · Cook · Enjoy</p>
+  <div class="heroFood">🍲</div>
+</div>
+<section class="scanCard" id="scanCard">
+ <div class="scanIcon">📷</div><div class="scanCopy"><b>Scan Ingredients</b><small>Take photo or choose from gallery</small></div>
+ <button class="scanGo" id="scanOpen">➜</button>
+ <input type="file" id="scanFile" accept="image/*" capture="environment" hidden>
+</section>
+<div class="quickActions">
+ <div class="quickAction">🎙️<span>Voice Input</span></div>
+ <div class="quickAction">🍴<span>Smart Recipes</span></div>
+ <div class="quickAction">🔥<span>Diet Plans</span></div>
+ <div class="quickAction">🛒<span>Shop More</span></div>
+</div>
+
+
+<div id="adBox">
+
+<h3>
+📢 Sponsored
+</h3>
+
+<p>
+Advertisement Space
+</p>
+
+</div>
+<section class="card">
+
+<div class="title">
+
+<h3 id="ingTitle">
+Select Ingredients
+</h3>
+
+<div class="count"
+id="count">
+0
+</div>
+
+</div>
+
+<input
+id="ingredientInput"
+type="text"
+placeholder="Rice, Onion, Tomato">
+<small id="voiceStatus" class="voiceStatus" hidden aria-live="polite"></small>
+
+<input
+id="qtyInput"
+type="number"
+placeholder="Quantity">
+
+<select id="unitSelect">
+
+<option value="">
+Select Unit
+</option>
+
+<option>
+Piece
+</option>
+
+<option>
+Kg
+</option>
+
+<option>
+Gram
+</option>
+
+<option>
+Liter
+</option>
+
+<option>
+ml
+</option>
+
+</select>
+
+<button
+class="btn"
+id="addBtn">
+
+➕ Add Ingredient
+
+</button>
+
+<button
+class="btn"
+id="findBtn">
+
+🔍 Find Matching Recipes
+
+</button>
+
+<button class="nutritionShortcut" id="nutritionShortcut">🔥 Nutrition Information</button>
+<div id="nutritionPanel" class="nutritionPanel" hidden><h3 id="nutritionTitle">🔥 Nutrition Information</h3><p id="nutritionIntro">Approximate nutrition per serving. Actual values depend on portion size and cooking method.</p><div id="nutritionResults" aria-live="polite"></div></div>
+<div
+class="list"
+id="selectedList">
+
+</div>
+
+<div
+id="recipeResults">
+
+</div>
+
+</section>
+
+<section
+class="card">
+
+<h3 class="sectionTitle">
+
+🍚 Categories
+
+</h3>
+
+<div
+class="categories"
+id="categoryList">
+  <div class="cat active"
+data-cat="All">
+All
+</div>
+
+<div class="cat"
+data-cat="Rice">
+Rice
+</div>
+
+<div class="cat"
+data-cat="Vegetable">
+Vegetable
+</div>
+
+<div class="cat"
+data-cat="Paneer">
+Paneer
+</div>
+
+<div class="cat"
+data-cat="Dal">
+Dal
+</div>
+
+<div class="cat"
+data-cat="Breakfast">
+Breakfast
+</div>
+
+<div class="cat"
+data-cat="Egg">
+Egg
+</div>
+
+<div class="cat"
+data-cat="NonVeg">
+NonVeg
+</div>
+
+<div class="cat"
+data-cat="Healthy">
+Healthy
+</div>
+
+<div class="cat"
+data-cat="Drink">
+Drink
+</div>
+
+</div>
+
+</section>
+
+</main>
+
+</div>
+
+<div id="favPage"
+class="page"
+style="display:none;">
+
+<div class="wrap">
+
+<h2 class="pageTitle">
+
+❤️ Favorites
+
+</h2>
+
+<div id="favoriteRecipes">
+
+<p class="empty">
+
+No favorite recipes yet.
+
+</p>
+
+</div>
+
+</div>
+
+</div>
+<div id="dietPage"
+class="page"
+style="display:none;">
+
+<div class="wrap">
+
+<h2 class="pageTitle">
+
+👑 Premium Diet Plans
+
+</h2>
+
+<div id="dietPlans">
+
+</div>
+
+</div>
+
+</div>
+
+<div id="worldPage" class="page" style="display:none;">
+  <div class="wrap">
+    <div class="worldIntro">
+      <p class="eyebrow">🌍 RISE EXPLORE</p>
+      <h2 class="pageTitle" id="worldTitle">World Dishes</h2>
+      <p id="worldIntroText">Discover famous dishes from countries around the world.</p>
+    </div>
+    <input id="worldSearch" type="search" placeholder="Search country or dish…" aria-label="Search world dishes">
+    <div id="worldDishGrid" class="worldDishGrid"></div>
+  </div>
+</div>
+
+<div id="storePage"
+class="page"
+style="display:none;">
+
+<div class="wrap">
+
+<h2 class="pageTitle">
+
+🛒 Affiliate Store
+
+</h2>
+
+<div id="affiliateProducts">
+
+</div>
+
+</div>
+
+</div>
+
+<nav class="bottomNav">
+
+<button
+id="homeNav"
+class="navBtn active">
+
+🏠
+
+<span>
+Home
+</span>
+
+</button>
+
+<button
+id="favNav"
+class="navBtn">
+
+❤️
+
+<span>
+Favorites
+</span>
+
+</button>
+
+<button
+id="dietNav"
+class="navBtn">
+
+👑
+
+<span>
+Diets
+</span>
+
+</button>
+
+<button id="worldNav" class="navBtn">
+🌍
+<span>World</span>
+</button>
+
+<button
+id="storeNav"
+class="navBtn">
+
+🛒
+
+<span>
+Store
+</span>
+
+</button>
+
+</nav>
+
+<!-- In-app camera scanner -->
+<div class="cameraModal" id="cameraModal" hidden aria-hidden="true">
+  <div class="cameraPanel" role="dialog" aria-modal="true" aria-labelledby="cameraTitle">
+    <div class="cameraTop"><div><h2 id="cameraTitle">Scan Ingredients</h2><p>Place your ingredients inside the frame</p></div><button type="button" id="cameraClose" class="cameraClose" aria-label="Close camera">✕</button></div>
+    <div class="cameraViewport" id="cameraViewport">
+      <video id="cameraVideo" autoplay playsinline muted></video>
+      <img id="cameraPreview" alt="Captured ingredients preview" hidden>
+      <div class="cameraFrame" aria-hidden="true"></div>
+      <div class="cameraMessage" id="cameraMessage" hidden></div>
+    </div>
+    <canvas id="cameraCanvas" hidden></canvas>
+    <div class="cameraActions">
+      <button type="button" id="cameraGallery" class="cameraSecondary">Choose from gallery</button>
+      <button type="button" id="cameraCapture" class="cameraCapture">●</button>
+      <button type="button" id="cameraRetake" class="cameraSecondary" hidden>Retake</button>
+      <button type="button" id="cameraUse" class="cameraPrimary" hidden>Use Photo</button>
+    </div>
+    <p class="cameraHint" id="cameraHint">Camera access is required. Allow permission when your browser asks.</p>
+  </div>
+</div>
+
+<script>
+(() => {
+  const $ = id => document.getElementById(id);
+  const modal = $('cameraModal'), video = $('cameraVideo'), preview = $('cameraPreview');
+  const capture = $('cameraCapture'), retake = $('cameraRetake'), usePhoto = $('cameraUse');
+  const hint = $('cameraHint'), message = $('cameraMessage'), fileInput = $('scanFile');
+  let stream = null, capturedBlob = null;
+
+  async function stopCamera() {
+    if (stream) stream.getTracks().forEach(track => track.stop());
+    stream = null; video.srcObject = null;
+  }
+  function showMessage(text) { message.textContent = text; message.hidden = false; }
+  function clearPreview() {
+    preview.hidden = true; preview.removeAttribute('src');
+    video.hidden = false; capture.hidden = false; retake.hidden = true; usePhoto.hidden = true;
+    capturedBlob = null;
+  }
+  async function startCamera() {
+    clearPreview(); message.hidden = true;
+    if (!navigator.mediaDevices?.getUserMedia) {
+      showMessage('In-app camera needs HTTPS and a browser that supports camera access.');
+      hint.textContent = 'Use the gallery option below, or open the deployed HTTPS site in Chrome.';
+      capture.hidden = true; return;
+    }
+    try {
+      await stopCamera();
+      stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' }, width: { ideal: 1920 }, height: { ideal: 1080 } }, audio: false });
+      video.srcObject = stream; await video.play();
+      hint.textContent = 'Keep the ingredients well lit and tap the round button to capture.';
+      capture.hidden = false;
+    } catch (err) {
+      console.error('Camera error:', err);
+      capture.hidden = true;
+      const reason = err?.name === 'NotAllowedError' ? 'Camera permission was denied.' : err?.name === 'NotFoundError' ? 'No camera was found on this device.' : 'Could not open the camera.';
+      showMessage(reason + ' You can still choose a photo from your gallery.');
+      hint.textContent = 'Check browser camera permission and try again.';
+    }
+  }
+  async function openCamera() {
+    modal.hidden = false; modal.setAttribute('aria-hidden', 'false'); document.body.classList.add('camera-open');
+    await startCamera();
+  }
+  async function closeCamera() {
+    await stopCamera(); modal.hidden = true; modal.setAttribute('aria-hidden', 'true'); document.body.classList.remove('camera-open');
+  }
+  $('scanOpen')?.addEventListener('click', openCamera);
+  $('cameraClose')?.addEventListener('click', closeCamera);
+  $('cameraGallery')?.addEventListener('click', () => fileInput.click());
+  fileInput?.addEventListener('change', async () => {
+    const file = fileInput.files?.[0]; if (!file) return;
+    await stopCamera(); capturedBlob = file;
+    preview.src = URL.createObjectURL(file); preview.hidden = false; video.hidden = true;
+    capture.hidden = true; retake.hidden = false; usePhoto.hidden = false; message.hidden = true;
+    hint.textContent = 'Photo selected. Tap Use Photo to keep it for ingredient recognition.';
+  });
+  capture?.addEventListener('click', () => {
+    if (!video.videoWidth || !video.videoHeight) return;
+    const canvas = $('cameraCanvas'); canvas.width = video.videoWidth; canvas.height = video.videoHeight;
+    canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+    canvas.toBlob(async blob => {
+      if (!blob) { showMessage('Could not capture photo. Please try again.'); return; }
+      capturedBlob = blob; preview.src = URL.createObjectURL(blob); preview.hidden = false; video.hidden = true;
+      capture.hidden = true; retake.hidden = false; usePhoto.hidden = false; await stopCamera();
+      hint.textContent = 'Photo captured. Tap Use Photo to continue.';
+    }, 'image/jpeg', .88);
+  });
+  retake?.addEventListener('click', startCamera);
+  usePhoto?.addEventListener('click', async () => {
+    if (!capturedBlob) return;
+    const imageToScan = capturedBlob;
+    await closeCamera();
+    if (typeof window.riseScanIngredients === 'function') {
+      await window.riseScanIngredients(imageToScan);
+    } else {
+      const card = $('scanCard');
+      let status = $('scanStatus');
+      if (!status) { status = document.createElement('small'); status.id = 'scanStatus'; status.className = 'scanStatus'; card.appendChild(status); }
+      status.textContent = 'Scanner is loading. Please refresh and try again.';
+    }
+  });
+  $('nutritionShortcut')?.addEventListener('click', () => { if (typeof showNutrition === 'function') showNutrition(null); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && !modal.hidden) closeCamera(); });
+})();
+</script>
+<script src="data.js"></script>
+
+<script src="app.js"></script>
+
+
+
+<!-- Firebase CDN setup + Google Authentication -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+  import {
+    getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged
+  } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
+  import { getFirestore } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyDAgbbboTbC5v8ouFmYMcoQwPbssNIFXM",
+    authDomain: "rise-recipe-matcher.firebaseapp.com",
+    projectId: "rise-recipe-matcher",
+    storageBucket: "rise-recipe-matcher.firebasestorage.app",
+    messagingSenderId: "30804125537",
+    appId: "1:30804125537:web:fe594919a52d86e48c4720",
+    measurementId: "G-FC1N25H82J"
+  };
+
+  const firebaseApp = initializeApp(firebaseConfig);
+  const firebaseAuth = getAuth(firebaseApp);
+  const googleProvider = new GoogleAuthProvider();
+  const firestoreDb = getFirestore(firebaseApp);
+  const riseLoginBtn = document.getElementById("riseLoginBtn");
+
+  riseLoginBtn?.addEventListener("click", async () => {
+    try {
+      if (firebaseAuth.currentUser) {
+        await signOut(firebaseAuth);
+      } else {
+        await signInWithPopup(firebaseAuth, googleProvider);
+      }
+    } catch (error) {
+      console.error("RISE sign-in error:", error);
+      alert("Login error: " + (error?.message || "Please try again."));
+    }
+  });
+
+  onAuthStateChanged(firebaseAuth, (user) => {
+    if (!riseLoginBtn) return;
+    riseLoginBtn.textContent = user ? "Logout" : "Login";
+    riseLoginBtn.title = user ? (user.displayName || user.email || "Signed in") : "Sign in with Google";
+  });
+
+  // Available for later Firestore features
+  window.riseFirebase = { app: firebaseApp, auth: firebaseAuth, googleProvider, db: firestoreDb };
+</script>
+
+</body>
+
+</html>
